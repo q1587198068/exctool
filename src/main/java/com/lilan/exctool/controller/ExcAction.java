@@ -1,5 +1,6 @@
 package com.lilan.exctool.controller;
 
+import com.lilan.exctool.pojo.BeforeData;
 import com.lilan.exctool.service.ExcService;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -14,11 +15,10 @@ import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.URLEncoder;
 import java.util.HashMap;
+import java.util.List;
 
 @Controller
 @RequestMapping("exc")
@@ -27,23 +27,27 @@ public class ExcAction {
     @RequestMapping("start")
     public Object start() {
 
-        HashMap<Object, Object> map = new HashMap<>();
-        map.put("hello", "springboot");
         return "welcome";
     }
 
     @RequestMapping("importExc")
-    public Object importExc(MultipartFile fileUpload, HttpServletRequest request, HttpServletResponse response) throws IOException, InvalidFormatException {
-        String path = request.getSession().getServletContext().getRealPath("/");//表示到项目的根目录下，要是想到目录下的子文件夹，修改"/"即可
-        path = path.replaceAll("\\\\", "/");
-        System.out.println(path);
+    public Object importExc(MultipartFile fileUpload,String SCType,
+                            HttpServletRequest request,
+                            HttpServletResponse response) throws IOException, InvalidFormatException {
+
 
         ExcService excService = new ExcService();
         File file = excService.multopartFileToFile(fileUpload);
 
-        //file 转  workbook   处理数据  生成新excel   压缩zip  下载
-        excService.getDatByWb(file);
+        //file 转  workbook  转list  去重
+        List<BeforeData> beforeList = excService.getDatByWb(file);
+        System.out.println(beforeList.size()+"-----"+beforeList);
+//处理数据  生成新excel
+        excService.createNewExc(beforeList,SCType);
+//压缩zip
 
+
+        //下载
 
         String filePath = "";
         String fileName = "";

@@ -1,33 +1,33 @@
 package com.lilan.exctool.pojo;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+//原始数据
+public class BeforeData {
 
-public class ExcMessage {
     private String orderNum;
     private String orderNumERP;
     private String clientName;//客户名称、发货地址及联系人
     private String partOrder;//分单原则
-    private int scAll;
-    private int scA;
-    private int scB;
-    private int scC;
-    private ArrayList<Message2> messageList=new ArrayList<Message2>();
-
+    private String id;
+    private String type;
 
     @Override
     public String toString() {
-        return "ExcMessage{" +
+        return "BeforeData{" +
                 "orderNum='" + orderNum + '\'' +
                 ", orderNumERP='" + orderNumERP + '\'' +
                 ", clientName='" + clientName + '\'' +
                 ", partOrder='" + partOrder + '\'' +
-                ", scAll='" + scAll + '\'' +
-                ", scA='" + scA + '\'' +
-                ", scB='" + scB + '\'' +
-                ", scC='" + scC + '\'' +
-                ", messageList=" + messageList +
+                ", id='" + id + '\'' +
+                ", type='" + type + '\'' +
                 '}';
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public String getOrderNum() {
@@ -62,43 +62,11 @@ public class ExcMessage {
         this.partOrder = partOrder;
     }
 
-    public int getScAll() {
-        return scAll;
+    public String getId() {
+        return id;
     }
 
-    public void setScAll(int scAll) {
-        this.scAll = scAll;
-    }
-
-    public int getScA() {
-        return scA;
-    }
-
-    public void setScA(int scA) {
-        this.scA = scA;
-    }
-
-    public int getScB() {
-        return scB;
-    }
-
-    public void setScB(int scB) {
-        this.scB = scB;
-    }
-
-    public int getScC() {
-        return scC;
-    }
-
-    public void setScC(int scC) {
-        this.scC = scC;
-    }
-
-    public ArrayList<Message2> getMessageList() {
-        return messageList;
-    }
-
-    public void setMessageList(ArrayList<Message2> messageList) {
-        this.messageList = messageList;
+    public void setId(String id) {
+        this.id = id;
     }
 }

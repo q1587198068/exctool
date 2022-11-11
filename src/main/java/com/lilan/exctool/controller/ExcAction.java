@@ -41,12 +41,12 @@ public class ExcAction {
 
         //file 转  workbook  转list  去重
         List<BeforeData> beforeList = excService.getDatByWb(file);
-        System.out.println(beforeList.size()+"-----"+beforeList);
+       // System.out.println(beforeList.size()+"-----"+beforeList);
 //处理数据  生成新excel
         String zipPath = excService.createNewExc(beforeList, SCType);
 //压缩zip
         String zipFileDown = excService.zipDataByPath(zipPath, jgName);
-
+        System.out.println("zipFileDown--"+zipFileDown);
         //下载
         String filePath = "";
         String fileName = "".equals(jgName)? "文件.zip":  jgName+".zip";
@@ -58,10 +58,13 @@ public class ExcAction {
         try {
             fileName = URLEncoder.encode(fileName, "UTF-8");
             in = new FileInputStream(new File(zipFileDown));
+            out = response.getOutputStream();
+            response.reset();
+
             response.setContentType("multipart/form-data");
             response.setCharacterEncoding("UTF-8");
             response.setHeader("Content-Disposition", "attachment;fileName=" + fileName);
-            out = response.getOutputStream();
+
 
             int len = 0;
             byte[] buffer = new byte[1024 * 10];

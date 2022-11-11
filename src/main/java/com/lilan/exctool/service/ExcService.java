@@ -303,7 +303,7 @@ public class ExcService {
         HashSet disSet = new HashSet();
         ArrayList isdisList = new ArrayList();
 //遍历原始表数据
-        for (int i = 1; i < lastRowNum; i++) {
+        for (int i = 2; i <= lastRowNum; i++) {
             BeforeData beforeData = new BeforeData();
             XSSFRow row = sheet.getRow(i);
             //分单原则  大馈线
@@ -355,7 +355,7 @@ public class ExcService {
             beforeData.setOrderNumERP(erp);
             beforeData.setType(type);
             beforeData.setPartOrder(bigKX);
-            System.out.println(beforeData);
+            //System.out.println(beforeData);
             if (disSet.add(id)) {
                 resultList.add(beforeData);
             } else {

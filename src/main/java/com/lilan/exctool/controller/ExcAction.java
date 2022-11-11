@@ -31,7 +31,7 @@ public class ExcAction {
     }
 
     @RequestMapping("importExc")
-    public Object importExc(MultipartFile fileUpload,String SCType,
+    public Object importExc(MultipartFile fileUpload,String SCType,String jgName,
                             HttpServletRequest request,
                             HttpServletResponse response) throws IOException, InvalidFormatException {
 
@@ -43,22 +43,21 @@ public class ExcAction {
         List<BeforeData> beforeList = excService.getDatByWb(file);
         System.out.println(beforeList.size()+"-----"+beforeList);
 //处理数据  生成新excel
-        excService.createNewExc(beforeList,SCType);
+        String zipPath = excService.createNewExc(beforeList, SCType);
 //压缩zip
-
+        String zipFileDown = excService.zipDataByPath(zipPath, jgName);
 
         //下载
-
         String filePath = "";
-        String fileName = "";
+        String fileName = "".equals(jgName)? "文件.zip":  jgName+".zip";
 
 
         ServletOutputStream out = null;
         FileInputStream in = null;
 
-        /*try {
+        try {
             fileName = URLEncoder.encode(fileName, "UTF-8");
-            in = new FileInputStream(file);
+            in = new FileInputStream(new File(zipFileDown));
             response.setContentType("multipart/form-data");
             response.setCharacterEncoding("UTF-8");
             response.setHeader("Content-Disposition", "attachment;fileName=" + fileName);
@@ -80,7 +79,7 @@ public class ExcAction {
                 e.printStackTrace();
 
             }
-        }*/
+        }
         return "welcome";
     }
 

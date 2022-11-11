@@ -4,13 +4,55 @@
     <meta charset="UTF-8">
     <title>EXC上传页</title>
 </head>
-<body>
 
-<form enctype="multipart/form-data" method="post" action="/exc/importExc">
-    文件：<input type="file" name="fileUpload"/>
-    类型(SC)：<input type="text" name="SCType">
-    <input type="submit" value="上传"/>
-</form>
+<style>
+    table { /*为页面中所有的table标签添加样式*/
+        width: 600px; /*设置table宽度*/
+        margin: auto; /*让表格居中显示*/
+        border: black 1px solid; /*添加边框*/
+        border-spacing: 0px;
+        去掉table /*标签及其子标签边框之间的白色空隙*/ border-collapse: collapse; /*去掉重合线*/
+
+    }
+
+    th { /*为页面中所有的th标签添加样式*/
+        border: black 1px solid; /*添加边框*/
+    }
+
+    td { /*为页面中所有的td标签添加样式*/
+        border: black 1px solid; /*添加边框*/
+    }
+
+</style>
+<body>
+<div>
+    <br/><br/><br/><br/><br/><br/><br/><br/><br/>
+    <form enctype="multipart/form-data" method="post" action="/exc/importExc">
+        <table align="center">
+            <td align="center" colspan="2">源文件Excel拆分Excel</td>
+            <tr>
+                <th>选择源文件：</th>
+                <td><input type="file" name="fileUpload"/><br/></td>
+            </tr>
+            <tr>
+                <th>类型(SC4156Y)：</th>
+                <td><input type="text" name="SCType"><br/></td>
+            </tr>
+            <tr>
+                <th>机构(北京)：</th>
+                <td><input type="text" name="jgName"><br/></td>
+            </tr>
+            <tr>
+                <th>上传</th>
+                <td><input type="submit" value="开始上传"/></td>
+            </tr>
+
+
+        </table>
+
+    </form>
+
+</div>
 
 
 </body>

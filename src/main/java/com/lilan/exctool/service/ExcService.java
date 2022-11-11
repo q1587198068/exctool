@@ -3,33 +3,49 @@ package com.lilan.exctool.service;
 import com.lilan.exctool.pojo.BeforeData;
 import com.lilan.exctool.pojo.ExcMessage;
 import com.lilan.exctool.pojo.Message2;
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import com.lilan.exctool.utils.MyFileUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.boot.system.ApplicationHome;
-import org.springframework.util.ClassUtils;
 import org.springframework.util.ResourceUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
-import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public class ExcService {
 
-    public void createNewExc(List<BeforeData> beforeList, String SCType) {
+    public String zipDataByPath(String path, String zipName) throws FileNotFoundException, UnsupportedEncodingException {
+        System.out.println("path" + path);
+     /*   File file = new File(path);
+        File[] files = file.listFiles();
+        for (int i = 0; i < files.length; i++) {
+            if (files[i].isFile())//如果是文件
+            {
+                System.out.println("文件名" + files[i].getName()); //文件名
+                System.out.println("完整路径" + files[i]);  //完整路径
+            }
+        }*/
+        String format = new SimpleDateFormat("yyyyMMdd").format(new Date());
+        long l = System.currentTimeMillis();
+        String jarPath = getJarPath();
+        String zipPath = jarPath + File.separator + "zipFiles" + File.separator + format;
+        String endZipName = zipName + l + ".zip";
+        MyFileUtils fileUtils = new MyFileUtils();
+        fileUtils.compressToZip(path, zipPath, endZipName);
+
+        return zipPath +File.separator+ endZipName;
+    }
+
+
+    public String createNewExc(List<BeforeData> beforeList, String SCType) {
         HashSet<String> disSet = new HashSet();
         for (int i = 0; i < beforeList.size(); i++) {
             BeforeData beforeData = beforeList.get(i);
@@ -45,7 +61,7 @@ public class ExcService {
         try {
             String jarPath = getJarPath();
             System.out.println("jarPath--" + jarPath);
-            String savePath = jarPath+File.separator+"downFile"+File.separator+format+File.separator+savaPathTime;
+            String savePath = jarPath + File.separator + "downFile" + File.separator + format + File.separator + savaPathTime;
 
 
             //获取所有的去重的分单原则
@@ -53,17 +69,25 @@ public class ExcService {
             //要生成的文件数
             for (int i = 0; i < partOrderList.size(); i++) {
                 String partOrder = partOrderList.get(i);
-                runn runn = new runn(beforeList, partOrder, SCType, jarPath,savePath);
-
+                runn runn = new runn(beforeList, partOrder, SCType, jarPath, savePath);
+                //提交任务到线程池
                 threadPool.execute(runn);
             }
-
-
+            //等待任务执行完毕，关闭线程池
+            threadPool.shutdown();
+            while (true) {
+                //判断线程池线程执行完毕
+                if (threadPool.isTerminated()) {
+                    break;
+                }
+                Thread.sleep(1000);
+            }
+            return savePath;
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-
+        return null;
     }
 
     class runn implements Runnable {
@@ -133,36 +157,36 @@ public class ExcService {
             String tempPath = jarPath + File.separator + "template_down.xlsx";
             File file = new File(tempPath);
             //处理下载模板数据
-            XSSFWorkbook wb = doWBData(file, excMessage,SCType);
+            XSSFWorkbook wb = doWBData(file, excMessage, SCType);
             //存储生成文件
             File file1 = new File(savePath);
-            if(!file1.exists()){
-               //不存在，创建目录
+            if (!file1.exists()) {
+                //不存在，创建目录
                 file1.mkdirs();
-                        }
-
-            String filename=partOrder+"-";
-            if(0!=excMessage.getScA()){
-                if (!filename.endsWith("-")){
-                    filename+="+";
-                }
-                filename+="A型"+excMessage.getScA()+"个";
-            }
-            if(0!=excMessage.getScB()){
-                if (!filename.endsWith("-")){
-                    filename+="+";
-                }
-                filename+="B型"+excMessage.getScB()+"个";
-            }
-            if(0!=excMessage.getScC()){
-                if (!filename.endsWith("-")){
-                    filename+="+";
-                }
-                filename+="C型"+excMessage.getScC()+"个";
             }
 
-          //  wb.文件保存
-            File savefile=new File(savePath,filename+".xlsx");
+            String filename = partOrder + "-";
+            if (0 != excMessage.getScA()) {
+                if (!filename.endsWith("-")) {
+                    filename += "+";
+                }
+                filename += "A型" + excMessage.getScA() + "个";
+            }
+            if (0 != excMessage.getScB()) {
+                if (!filename.endsWith("-")) {
+                    filename += "+";
+                }
+                filename += "B型" + excMessage.getScB() + "个";
+            }
+            if (0 != excMessage.getScC()) {
+                if (!filename.endsWith("-")) {
+                    filename += "+";
+                }
+                filename += "C型" + excMessage.getScC() + "个";
+            }
+
+            //  wb.文件保存
+            File savefile = new File(savePath, filename + ".xlsx");
             if (!savefile.exists()) {
                 try {
                     savefile.createNewFile();
@@ -171,7 +195,7 @@ public class ExcService {
                 }
             }
 
-            OutputStream os= null;
+            OutputStream os = null;
             try {
                 os = new FileOutputStream(savefile);
                 wb.write(os);
@@ -182,8 +206,6 @@ public class ExcService {
             }
 
 
-
-
         }
 
         public runn(List<BeforeData> beforeList, String partOrder, String SCType, String jarPath,
@@ -192,12 +214,12 @@ public class ExcService {
             this.partOrder = partOrder;
             this.SCType = SCType;
             this.jarPath = jarPath;
-           this.savePath=savePath;
+            this.savePath = savePath;
         }
     }
 
 
-    public XSSFWorkbook doWBData(File file, ExcMessage excMessage,String SCType) {
+    public XSSFWorkbook doWBData(File file, ExcMessage excMessage, String SCType) {
         XSSFWorkbook tempwb = new XSSFWorkbook();
         try {
             //获取wb  填入数据
@@ -224,17 +246,17 @@ public class ExcService {
             r4c1.setCellValue(excMessage.getScAll());
 
             XSSFRow row5 = sheetAt.getRow(5);
-            row5.getCell(0).setCellValue(SCType+"A数量");
+            row5.getCell(0).setCellValue(SCType + "A数量");
             XSSFCell r5c1 = row5.getCell(1);
             r5c1.setCellValue(excMessage.getScA());
 
             XSSFRow row6 = sheetAt.getRow(6);
-            row6.getCell(0).setCellValue(SCType+"B数量");
+            row6.getCell(0).setCellValue(SCType + "B数量");
             XSSFCell r6c1 = row6.getCell(1);
             r6c1.setCellValue(excMessage.getScB());
 
             XSSFRow row7 = sheetAt.getRow(7);
-            row7.getCell(0).setCellValue(SCType+"C数量");
+            row7.getCell(0).setCellValue(SCType + "C数量");
             XSSFCell r7c1 = row7.getCell(1);
             r7c1.setCellValue(excMessage.getScC());
 
@@ -378,5 +400,27 @@ public class ExcService {
 
         return path.getAbsolutePath();
     }
+
+
+    //获取一个文件夹下所有的文件
+    private static void getFile(String path) {
+        // 获得指定文件对象
+        File file = new File(path);
+        // 获得该文件夹内的所有文件
+        File[] array = file.listFiles();
+
+        for (int i = 0; i < array.length; i++) {
+            if (array[i].isFile())//如果是文件
+            {
+                System.out.println(array[i].getName()); //文件名
+                System.out.println(array[i]);  //完整路径
+            } else if (array[i].isDirectory())//如果是文件夹
+            {
+                System.out.println(array[i].getName());
+                getFile(array[i].getPath());
+            }
+        }
+    }
+
 
 }

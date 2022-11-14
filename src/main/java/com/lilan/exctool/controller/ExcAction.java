@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -38,14 +39,26 @@ public class ExcAction {
 
         ExcService excService = new ExcService();
         File file = excService.multopartFileToFile(fileUpload);
+        //获取源文件名
+        String fileName1 = file.getName();
+        System.out.println("name"+fileName1);
+        String fileTyle=fileName1.substring(fileName1.lastIndexOf("."),fileName1.length());
+        System.out.println(fileTyle);
+        List<BeforeData> beforeList=new ArrayList<>();
+        //不同类型file 转  workbook  转list  去重
+        if(".xlsx".equals(fileTyle)){
+            beforeList= excService.getDatByWbXLSX(file);
+        }
+        if(".xls".equals(fileTyle)){
+            beforeList= excService.getDatByWbXLS(file);
+        }
 
-        //file 转  workbook  转list  去重
-        List<BeforeData> beforeList = excService.getDatByWb(file);
+
        // System.out.println(beforeList.size()+"-----"+beforeList);
 //处理数据  生成新excel
-        String zipPath = excService.createNewExc(beforeList, SCType);
+        String zipPath = excService.createNewExc(beforeList, SCType,jgName);
 //压缩zip
-        String zipFileDown = excService.zipDataByPath(zipPath, jgName);
+        String zipFileDown = excService.zipDataByPath(zipPath, jgName,jgName);
         System.out.println("zipFileDown--"+zipFileDown);
         //下载
         String filePath = "";

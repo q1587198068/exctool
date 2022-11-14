@@ -4,6 +4,10 @@ import com.lilan.exctool.pojo.BeforeData;
 import com.lilan.exctool.pojo.ExcMessage;
 import com.lilan.exctool.pojo.Message2;
 import com.lilan.exctool.utils.MyFileUtils;
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.xssf.usermodel.XSSFCell;
@@ -22,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 
 public class ExcService {
 
-    public String zipDataByPath(String path, String zipName) throws FileNotFoundException, UnsupportedEncodingException {
+    public String zipDataByPath(String path, String zipName,String JG) throws FileNotFoundException, UnsupportedEncodingException {
         System.out.println("path" + path);
      /*   File file = new File(path);
         File[] files = file.listFiles();
@@ -39,13 +43,13 @@ public class ExcService {
         String zipPath = jarPath + File.separator + "zipFiles" + File.separator + format;
         String endZipName = zipName + l + ".zip";
         MyFileUtils fileUtils = new MyFileUtils();
-        fileUtils.compressToZip(path, zipPath, endZipName);
+        fileUtils.compressToZip(path, zipPath, endZipName,JG);
 
         return zipPath +File.separator+ endZipName;
     }
 
 
-    public String createNewExc(List<BeforeData> beforeList, String SCType) {
+    public String createNewExc(List<BeforeData> beforeList, String SCType,String JG) {
         HashSet<String> disSet = new HashSet();
         for (int i = 0; i < beforeList.size(); i++) {
             BeforeData beforeData = beforeList.get(i);
@@ -63,13 +67,13 @@ public class ExcService {
             System.out.println("jarPath--" + jarPath);
             String savePath = jarPath + File.separator + "downFile" + File.separator + format + File.separator + savaPathTime;
 
-
             //获取所有的去重的分单原则
             List<String> partOrderList = new ArrayList(disSet);
             //要生成的文件数
             for (int i = 0; i < partOrderList.size(); i++) {
                 String partOrder = partOrderList.get(i);
-                runn runn = new runn(beforeList, partOrder, SCType, jarPath, savePath);
+                //保存文件地址+机构  解压缩方便
+                runn runn = new runn(beforeList, partOrder, SCType, jarPath, savePath+File.separator+JG);
                 //提交任务到线程池
                 threadPool.execute(runn);
             }
@@ -285,8 +289,8 @@ public class ExcService {
         return tempwb;
     }
 
-    //file 转wb  取出data 转pojo准备处理
-    public List<BeforeData> getDatByWb(File file) throws IOException, InvalidFormatException {
+    //file xlsx 转wb  取出data 转pojo准备处理
+    public List<BeforeData> getDatByWbXLSX(File file) throws IOException, InvalidFormatException {
       /*  XSSFWorkbook wb = new XSSFWorkbook(file);
         XSSFSheet sheet = wb.getSheetAt(0);
         int firstRowNum = sheet.getFirstRowNum();
@@ -302,7 +306,7 @@ public class ExcService {
         List<BeforeData> resultList = new ArrayList<>();
         HashSet disSet = new HashSet();
         ArrayList isdisList = new ArrayList();
-//遍历原始表数据
+        //遍历原始表数据
         for (int i = 2; i <= lastRowNum; i++) {
             BeforeData beforeData = new BeforeData();
             XSSFRow row = sheet.getRow(i);
@@ -367,6 +371,84 @@ public class ExcService {
 
         return resultList;
     }
+
+    //file xls 转wb  取出data 转pojo准备处理
+    public List<BeforeData> getDatByWbXLS(File file) throws IOException, InvalidFormatException {
+        HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(file));
+        HSSFSheet sheet = wb.getSheetAt(0);
+        int firstRowNum = sheet.getFirstRowNum();
+        int lastRowNum = sheet.getLastRowNum();
+        System.out.println("firstRowNum-" + firstRowNum + "/lastRowNum-" + lastRowNum);
+
+        List<BeforeData> resultList = new ArrayList<>();
+        HashSet disSet = new HashSet();
+        ArrayList isdisList = new ArrayList();
+        //遍历原始表数据
+        for (int i = 2; i <= lastRowNum; i++) {
+            BeforeData beforeData = new BeforeData();
+            HSSFRow row = sheet.getRow(i);
+            //分单原则  大馈线
+            HSSFCell bigKXcell = row.getCell(4);
+            String bigKX = "";
+            if (null != bigKXcell) {
+                bigKXcell.setCellType(CellType.STRING);
+                bigKX = bigKXcell.getStringCellValue();
+            }
+            //实物id
+            HSSFCell idcell = row.getCell(8);
+            String id = "";
+            if (null != idcell) {
+                idcell.setCellType(CellType.STRING);
+                id = idcell.getStringCellValue();
+            }
+            //类型
+            HSSFCell typecell = row.getCell(12);
+            String type = "";
+            if (null != typecell) {
+                typecell.setCellType(CellType.STRING);
+                type = typecell.getStringCellValue();
+            }
+            //收货地址
+            HSSFCell clientNamecell = row.getCell(13);
+            String clientName = "";
+            if (null != clientNamecell) {
+                clientNamecell.setCellType(CellType.STRING);
+                clientName = clientNamecell.getStringCellValue();
+            }
+            //订单编号
+            HSSFCell ordercell = row.getCell(14);
+            String order = "";
+            if (null != ordercell) {
+                ordercell.setCellType(CellType.STRING);
+                order = ordercell.getStringCellValue();
+            }
+            //ERP编号
+            HSSFCell ERPcell = row.getCell(15);
+            String erp = "";
+            if (null != ERPcell) {
+                ERPcell.setCellType(CellType.STRING);
+                erp = ERPcell.getStringCellValue();
+            }
+            //设置属性
+            beforeData.setClientName(clientName);
+            beforeData.setId(id);
+            beforeData.setOrderNum(order);
+            beforeData.setOrderNumERP(erp);
+            beforeData.setType(type);
+            beforeData.setPartOrder(bigKX);
+            //System.out.println(beforeData);
+            if (disSet.add(id)) {
+                resultList.add(beforeData);
+            } else {
+                isdisList.add(id);
+            }
+
+        }
+        System.out.println("源数据重复id：" + isdisList);
+
+        return resultList;
+    }
+
 
 
     public File multopartFileToFile(MultipartFile fileUpload) throws IOException {

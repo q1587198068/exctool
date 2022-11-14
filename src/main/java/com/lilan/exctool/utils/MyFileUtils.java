@@ -18,7 +18,7 @@ public class MyFileUtils {
      * @param zipFilePath    压缩后文件存储路径
      * @param zipFilename    压缩文件名
      */
-    public  void compressToZip(String sourceFilePath, String zipFilePath, String zipFilename) {
+    public  void compressToZip(String sourceFilePath, String zipFilePath, String zipFilename,String JG) {
         File sourceFile = new File(sourceFilePath);
         File zipPath = new File(zipFilePath);
         if (!zipPath.exists()) {
@@ -26,14 +26,15 @@ public class MyFileUtils {
         }
         File zipFile = new File(zipPath + File.separator + zipFilename);
         try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zipFile))) {
-            writeZip(sourceFile, "", zos);
+            writeZip(sourceFile, JG, zos);
+            //zip(sourceFilePath,zipFilePath);
             //文件压缩完成后，删除被压缩文件
             boolean flag = deleteDir(sourceFile);
             System.out.println("删除被压缩文件[" + sourceFile + "]标志："+flag);
         //    log.info("删除被压缩文件[" + sourceFile + "]标志：{}", flag);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException(e.getMessage(), e.getCause());
+            //throw new RuntimeException(e.getMessage(), e.getCause());
         }
     }
 
@@ -91,4 +92,46 @@ public class MyFileUtils {
             //删除空文件夹
             return dir.delete();
         }
+
+
+
+
+    /**
+     * @param inputFileName 你要压缩的文件夹(整个完整路径)
+     * @param zipFileName 压缩后的文件(整个完整路径)
+     * @throws Exception
+     */
+    public static Boolean zip(String inputFileName, String zipFileName) throws Exception {
+        zip(zipFileName, new File(inputFileName));
+        return true;
+    }
+
+    private static void zip(String zipFileName, File inputFile) throws Exception {
+        ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zipFileName));
+        zip(out, inputFile, "");
+        out.flush();
+        out.close();
+    }
+
+    private static void zip(ZipOutputStream out, File f, String base) throws Exception {
+        if (f.isDirectory()) {
+            File[] fl = f.listFiles();
+            out.putNextEntry(new ZipEntry(base + "/"));
+            base = base.length() == 0 ? "" : base + "/";
+            for (int i = 0; i < fl.length; i++) {
+                zip(out, fl[i], base + fl[i].getName());
+            }
+        } else {
+            out.putNextEntry(new ZipEntry(base));
+            FileInputStream in = new FileInputStream(f);
+            int b;
+            while ((b = in.read()) != -1) {
+                out.write(b);
+            }
+            in.close();
+        }
+    }
+
+
+
     }

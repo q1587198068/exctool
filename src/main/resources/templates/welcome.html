@@ -10,15 +10,12 @@
         width: 600px; /*设置table宽度*/
         margin: auto; /*让表格居中显示*/
         border: black 1px solid; /*添加边框*/
-        border-spacing: 0px;
-        去掉table /*标签及其子标签边框之间的白色空隙*/ border-collapse: collapse; /*去掉重合线*/
-
+        border-spacing: 0px; /* 去掉table 标签及其子标签边框之间的白色空隙*/
+        border-collapse: collapse; /*去掉重合线*/
     }
-
     th { /*为页面中所有的th标签添加样式*/
         border: black 1px solid; /*添加边框*/
     }
-
     td { /*为页面中所有的td标签添加样式*/
         border: black 1px solid; /*添加边框*/
     }
@@ -29,7 +26,7 @@
     <br/><br/><br/><br/><br/><br/><br/><br/><br/>
     <form enctype="multipart/form-data" method="post" action="/exc/importExc">
         <table align="center">
-            <td align="center" colspan="2">源文件Excel拆分Excel</td>
+            <td align="center" colspan="2">源文件Excel拆分Excel-模板1</td>
             <tr>
                 <th>选择源文件：</th>
                 <td><input type="file" name="fileUpload"/><br/></td>
@@ -54,7 +51,7 @@
     <tr>
         <td>
             tips：<br/>
-            &nbsp;1.[源文件] 格式为.xlsx，且对应模板。<br/>
+            &nbsp;1.[源文件] 格式为.xlsx或.xls，且对应模板。<br/>
             &nbsp;2.[类型] 决定每个分文件中的类型。<br/>
             &nbsp;3.[机构] 决定下载压缩包的名称。<br/>
         </td>

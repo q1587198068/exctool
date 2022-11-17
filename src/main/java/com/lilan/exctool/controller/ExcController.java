@@ -23,7 +23,7 @@ import java.util.List;
 
 @Controller
 @RequestMapping("exc")
-public class ExcAction {
+public class ExcController {
 
     @RequestMapping("start")
     public Object start() {

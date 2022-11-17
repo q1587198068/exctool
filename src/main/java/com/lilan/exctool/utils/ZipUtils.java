@@ -22,7 +22,7 @@ public class ZipUtils {
 
         if(!file1.exists()){
             //先得到文件的上级目录，并创建上级目录，在创建文件
-            file1.getParentFile().mkdir();
+            file1.getParentFile().mkdirs();
             try {
                 //创建文件
                 file1.createNewFile();

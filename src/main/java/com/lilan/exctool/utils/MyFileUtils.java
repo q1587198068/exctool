@@ -27,6 +27,7 @@ public class MyFileUtils {
         File zipFile = new File(zipPath + File.separator + zipFilename);
         try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zipFile))) {
             writeZip(sourceFile, JG, zos);
+
             //zip(sourceFilePath,zipFilePath);
             //文件压缩完成后，删除被压缩文件
             boolean flag = deleteDir(sourceFile);
@@ -73,7 +74,35 @@ public class MyFileUtils {
             }
         }
     }
-        /**
+
+    /**
+     *   直接压缩当前文件夹
+     * @param file
+     * @param zos
+     */
+    public  void writeZip(File file,  ZipOutputStream zos) {
+            //文件
+            try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file))) {
+                //指定zip文件夹
+                //ZipEntry zipEntry = new ZipEntry(parentPath + file.getName());
+                //生成的zip不包含该文件夹
+                ZipEntry zipEntry = new ZipEntry(file.getName());
+                zos.putNextEntry(zipEntry);
+                int len;
+                byte[] buffer = new byte[1024 * 10];
+                while ((len = bis.read(buffer, 0, buffer.length)) != -1) {
+                    zos.write(buffer, 0, len);
+                    zos.flush();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new RuntimeException(e.getMessage(), e.getCause());
+            }
+        }
+
+
+
+    /**
          * 删除文件夹
          *
          * @param dir

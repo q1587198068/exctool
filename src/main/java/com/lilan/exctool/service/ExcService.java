@@ -4,6 +4,7 @@ import com.lilan.exctool.pojo.BeforeData;
 import com.lilan.exctool.pojo.ExcMessage;
 import com.lilan.exctool.pojo.Message2;
 import com.lilan.exctool.utils.MyFileUtils;
+import com.lilan.exctool.utils.ZipUtils;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -28,22 +29,20 @@ public class ExcService {
 
     public String zipDataByPath(String path, String zipName,String JG) throws FileNotFoundException, UnsupportedEncodingException {
         System.out.println("path" + path);
-     /*   File file = new File(path);
-        File[] files = file.listFiles();
-        for (int i = 0; i < files.length; i++) {
-            if (files[i].isFile())//如果是文件
-            {
-                System.out.println("文件名" + files[i].getName()); //文件名
-                System.out.println("完整路径" + files[i]);  //完整路径
-            }
-        }*/
+        path+=File.separator+JG;
         String format = new SimpleDateFormat("yyyyMMdd").format(new Date());
+
         long l = System.currentTimeMillis();
         String jarPath = getJarPath();
         String zipPath = jarPath + File.separator + "zipFiles" + File.separator + format;
         String endZipName = zipName + l + ".zip";
-        MyFileUtils fileUtils = new MyFileUtils();
+      /*压缩文件不含目录
+       MyFileUtils fileUtils = new MyFileUtils();
         fileUtils.compressToZip(path, zipPath, endZipName,JG);
+*/
+        //压缩文件含目录
+        ZipUtils zipUtils = new ZipUtils();
+        zipUtils.endZip(path,zipPath+File.separator+endZipName);
 
         return zipPath +File.separator+ endZipName;
     }

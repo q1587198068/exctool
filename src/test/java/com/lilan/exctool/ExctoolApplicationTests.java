@@ -1,15 +1,16 @@
 package com.lilan.exctool;
 
+import com.lilan.exctool.utils.ZipUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.system.ApplicationHome;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ResourceUtils;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.List;
 
 @SpringBootTest
 class ExctoolApplicationTests {
@@ -22,24 +23,32 @@ class ExctoolApplicationTests {
 
 
 	@Test
-	public void t2343() throws FileNotFoundException, UnsupportedEncodingException {
-		/*//第一种
-		File path = new File(ResourceUtils.getURL("classpath:").getPath());
-		if(!path.exists()) path = new File("");
-		System.out.println(path.getAbsolutePath());
-		//第二种
-		System.out.println(System.getProperty("user.dir"));
-		//第三种
-		String path1 = ClassUtils.getDefaultClassLoader().getResource("").getPath();
-		System.out.println(URLDecoder.decode(path1, "utf-8"));
-		//第四种
-		String path2 = ResourceUtils.getURL("classpath:").getPath();
-		System.out.println(path2);
-		//第五种
-		ApplicationHome h = new ApplicationHome(getClass());
-		File jarF = h.getSource();
-		System.out.println(jarF.getParentFile().toString());
-*/
-	}
+	public void t2343() throws FileNotFoundException {
+
+		ZipUtils zipUtils = new ZipUtils();
+		File file = new File("C:\\workspace\\exctool\\target\\classes\\downFile\\2022-11-17\\1668647084311");
+
+		File file1  = new File("C:\\zzzzzzzz"+File.separator+"11.zip");
+
+		if(!file1.exists()){
+			//先得到文件的上级目录，并创建上级目录，在创建文件
+			file1.getParentFile().mkdir();
+			try {
+				//创建文件
+				file1.createNewFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		FileOutputStream fileOutputStream = new FileOutputStream(file1);
+		zipUtils.toZip("C:\\workspace\\exctool\\target\\classes\\downFile\\2022-11-17\\1668647084311",
+				fileOutputStream,true);
+
+
+		}
+
+
+
 
 }

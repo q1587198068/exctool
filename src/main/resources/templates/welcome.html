@@ -23,7 +23,7 @@
 </style>
 <body>
 <div>
-    <br/><br/><br/><br/><br/><br/><br/><br/><br/>
+    <br/><br/><br/><br/><br/><br/><br/><br/>
     <form enctype="multipart/form-data" method="post" action="/exc/importExc">
         <table align="center">
             <td align="center" colspan="2">源文件Excel拆分Excel-模板1</td>
@@ -45,6 +45,29 @@
             </tr>
         </table>
     </form>
+    <br/>
+    <form enctype="multipart/form-data" method="post" action="/exc/importExcSplitType">
+        <table align="center">
+            <td align="center" colspan="2">源文件Excel拆分Excel-模板1-拆分型号</td>
+            <tr>
+                <th>选择源文件：</th>
+                <td><input type="file" name="fileUpload"/><br/></td>
+            </tr>
+            <tr>
+                <th>类型(SC4156Y)：</th>
+                <td><input type="text" name="SCType"><br/></td>
+            </tr>
+            <tr>
+                <th>机构(北京)：</th>
+                <td><input type="text" name="jgName"><br/></td>
+            </tr>
+            <tr>
+                <th>上传</th>
+                <td><input type="submit" value="开始上传"/></td>
+            </tr>
+        </table>
+    </form>
+
 </div>
 <br/><br/><br/><br/><br/><br/><br/>
 <table align="center">

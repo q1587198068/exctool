@@ -47,6 +47,51 @@ public class ExcService {
         return zipPath +File.separator+ endZipName;
     }
 
+    public String createNewExcSplitType(List<BeforeData> beforeList, String SCType,String JG) {
+        HashSet<String> disSet = new HashSet();
+        for (int i = 0; i < beforeList.size(); i++) {
+            BeforeData beforeData = beforeList.get(i);
+            String partOrder = beforeData.getPartOrder();
+            disSet.add(partOrder);
+        }
+
+        //线程池处理
+        ThreadPoolExecutor threadPool = new ThreadPoolExecutor(20, 20, 0, TimeUnit.SECONDS, new LinkedBlockingDeque<Runnable>());
+        long savaPathTime = System.currentTimeMillis();
+        String format = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+
+        try {
+            String jarPath = getJarPath();
+            System.out.println("jarPath--" + jarPath);
+            String savePath = jarPath + File.separator + "downFile" + File.separator + format + File.separator + savaPathTime;
+
+            //获取所有的去重的分单原则
+            List<String> partOrderList = new ArrayList(disSet);
+            //要生成的文件数
+            for (int i = 0; i < partOrderList.size(); i++) {
+                String partOrder = partOrderList.get(i);
+                //保存文件地址+机构  解压缩方便
+                runnSpiltType runn = new runnSpiltType(beforeList, partOrder, SCType, jarPath, savePath+File.separator+JG);
+                //提交任务到线程池
+                threadPool.execute(runn);
+            }
+            //等待任务执行完毕，关闭线程池
+            threadPool.shutdown();
+            while (true) {
+                //判断线程池线程执行完毕
+                if (threadPool.isTerminated()) {
+                    break;
+                }
+                Thread.sleep(1000);
+            }
+            return savePath;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
 
     public String createNewExc(List<BeforeData> beforeList, String SCType,String JG) {
         HashSet<String> disSet = new HashSet();
@@ -92,6 +137,232 @@ public class ExcService {
 
         return null;
     }
+
+    class runnSpiltType implements Runnable {
+        List<BeforeData> beforeList;
+        String partOrder;
+        String SCType;
+        String jarPath;
+        String savePath;
+
+
+        @Override
+        public void run() {
+            //生成的excel的所有数据
+          //  ExcMessage excMessage = new ExcMessage();
+            ExcMessage excMessageA = new ExcMessage();
+            ExcMessage excMessageB = new ExcMessage();
+            ExcMessage excMessageC = new ExcMessage();
+            int SCA = 0;
+            int SCB = 0;
+            int SCC = 0;
+            for (int i = 0; i < beforeList.size(); i++) {
+                //每一条原始数据
+                BeforeData beforeData = beforeList.get(i);
+                if (partOrder.equals(beforeData.getPartOrder())) {
+                    if("A".equals(beforeData.getType())){
+                        //-----是需要的  beforeData
+                        //收件人信息
+                        String clientName = beforeData.getClientName();
+                        if (!"".equals(clientName)) {
+                            excMessageA.setClientName(clientName);
+                        }
+                        //订单号
+                        String orderNum = beforeData.getOrderNum();
+                        if (!"".equals(orderNum)) {
+                            excMessageA.setOrderNum(orderNum);
+                        }
+                        //ERP
+                        String orderNumERP = beforeData.getOrderNumERP();
+                        if (!"".equals(orderNumERP)) {
+                            excMessageA.setOrderNumERP(orderNumERP);
+                        }
+                        //SC类型
+                        String type = beforeData.getType();
+                        if ("A".equals(type) || "a".equals(type)) {
+                            SCA++;
+                        }
+                        if ("B".equals(type) || "b".equals(type)) {
+                            SCB++;
+                        }
+                        if ("C".equals(type) || "c".equals(type)) {
+                            SCC++;
+                        }
+                        //id
+                        String id = beforeData.getId();
+                        Message2 message2 = new Message2();
+                        message2.setId(id);
+                        message2.setType(type);
+                        excMessageA.getMessageList().add(message2);
+                    }
+                    if("B".equals(beforeData.getType())){
+                        //-----是需要的  beforeData
+                        //收件人信息
+                        String clientName = beforeData.getClientName();
+                        if (!"".equals(clientName)) {
+                            excMessageB.setClientName(clientName);
+                        }
+                        //订单号
+                        String orderNum = beforeData.getOrderNum();
+                        if (!"".equals(orderNum)) {
+                            excMessageB.setOrderNum(orderNum);
+                        }
+                        //ERP
+                        String orderNumERP = beforeData.getOrderNumERP();
+                        if (!"".equals(orderNumERP)) {
+                            excMessageB.setOrderNumERP(orderNumERP);
+                        }
+                        //SC类型
+                        String type = beforeData.getType();
+                        if ("A".equals(type) || "a".equals(type)) {
+                            SCA++;
+                        }
+                        if ("B".equals(type) || "b".equals(type)) {
+                            SCB++;
+                        }
+                        if ("C".equals(type) || "c".equals(type)) {
+                            SCC++;
+                        }
+                        //id
+                        String id = beforeData.getId();
+                        Message2 message2 = new Message2();
+                        message2.setId(id);
+                        message2.setType(type);
+                        excMessageB.getMessageList().add(message2);
+                    }
+                    if("C".equals(beforeData.getType())){
+                        //-----是需要的  beforeData
+                        //收件人信息
+                        String clientName = beforeData.getClientName();
+                        if (!"".equals(clientName)) {
+                            excMessageC.setClientName(clientName);
+                        }
+                        //订单号
+                        String orderNum = beforeData.getOrderNum();
+                        if (!"".equals(orderNum)) {
+                            excMessageC.setOrderNum(orderNum);
+                        }
+                        //ERP
+                        String orderNumERP = beforeData.getOrderNumERP();
+                        if (!"".equals(orderNumERP)) {
+                            excMessageC.setOrderNumERP(orderNumERP);
+                        }
+                        //SC类型
+                        String type = beforeData.getType();
+                        if ("A".equals(type) || "a".equals(type)) {
+                            SCA++;
+                        }
+                        if ("B".equals(type) || "b".equals(type)) {
+                            SCB++;
+                        }
+                        if ("C".equals(type) || "c".equals(type)) {
+                            SCC++;
+                        }
+                        //id
+                        String id = beforeData.getId();
+                        Message2 message2 = new Message2();
+                        message2.setId(id);
+                        message2.setType(type);
+                        excMessageC.getMessageList().add(message2);
+                    }
+                }
+            }
+            //分单原则  在这按照类型分文件  每个大馈线分3个文件  类型ABC
+            excMessageA.setPartOrder(partOrder);
+            excMessageA.setScA(SCA);
+            excMessageA.setScAll(SCA);
+            if(SCA>0){
+                createFileSpiltType(excMessageA);
+            }
+
+
+            excMessageB.setPartOrder(partOrder);
+            excMessageB.setScB(SCB);
+            excMessageB.setScAll(SCB);
+            if(SCB>0){
+                createFileSpiltType(excMessageB);
+            }
+
+
+            excMessageC.setPartOrder(partOrder);
+            excMessageC.setScC(SCC);
+            excMessageC.setScAll(SCC);
+            if(SCC>0){
+                createFileSpiltType(excMessageC);
+            }
+
+
+
+        }
+
+
+        private void createFileSpiltType( ExcMessage excMessage){
+            // System.out.println("excMessage--"+partOrder+"--"+excMessage);
+            //数据整合over，生成excel
+            //下载模板
+            String tempPath = jarPath + File.separator + "template_down.xlsx";
+            File file = new File(tempPath);
+            //处理下载模板数据
+            XSSFWorkbook wb = doWBData(file, excMessage, SCType);
+            //存储生成文件
+            File file1 = new File(savePath);
+            if (!file1.exists()) {
+                //不存在，创建目录
+                file1.mkdirs();
+            }
+
+            String filename = partOrder + "-";
+            if (0 != excMessage.getScA()) {
+                if (!filename.endsWith("-")) {
+                    filename += "+";
+                }
+                filename += "A型" + excMessage.getScA() + "个";
+            }
+            if (0 != excMessage.getScB()) {
+                if (!filename.endsWith("-")) {
+                    filename += "+";
+                }
+                filename += "B型" + excMessage.getScB() + "个";
+            }
+            if (0 != excMessage.getScC()) {
+                if (!filename.endsWith("-")) {
+                    filename += "+";
+                }
+                filename += "C型" + excMessage.getScC() + "个";
+            }
+
+            //  wb.文件保存
+            File savefile = new File(savePath, filename + ".xlsx");
+            if (!savefile.exists()) {
+                try {
+                    savefile.createNewFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            OutputStream os = null;
+            try {
+                os = new FileOutputStream(savefile);
+                wb.write(os);
+                os.flush();
+                os.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+
+        public runnSpiltType(List<BeforeData> beforeList, String partOrder, String SCType, String jarPath,
+                    String savePath) {
+            this.beforeList = beforeList;
+            this.partOrder = partOrder;
+            this.SCType = SCType;
+            this.jarPath = jarPath;
+            this.savePath = savePath;
+        }
+    }
+
 
     class runn implements Runnable {
         List<BeforeData> beforeList;

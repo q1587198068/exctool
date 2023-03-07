@@ -1,0 +1,9 @@
+spring:
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    password:
+    # redisson配置文件路径
+    redisson:
+      file: classpath:redisson.yml
+
